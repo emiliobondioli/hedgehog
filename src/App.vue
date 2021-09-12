@@ -35,7 +35,7 @@ function newHedge() {
   </h2>
   <div class="tools">
     <label>Transaction fee</label><input v-model="fee" />
-    <span class="small">BNB</span>
+    <span class="small">BNB</span> <span class="small hint">(will be subtracted from totals: 2 transactions for the bets and 1 to collect the winnings)</span>
   </div>
   <Hedge
     v-for="(round, index) in rounds"
@@ -61,6 +61,9 @@ body {
 h2 {
   color: rgb(184, 173, 210);
   font-weight: 900;
+}
+.hint {
+  color: rgb(184, 173, 210);
 }
 .tools {
   margin-bottom: 0.5rem;

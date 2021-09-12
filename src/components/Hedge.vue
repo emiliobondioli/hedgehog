@@ -26,7 +26,7 @@ const bull = computed(() => {
   else return bet.up * round.value.up - bet.up;
 });
 
-const totalFees = computed(() => parseFloat(fee.value) * -2);
+const totalFees = computed(() => parseFloat(fee.value) * -3);
 
 const result = computed(() => {
   return bear.value + bull.value + totalFees.value;
@@ -64,10 +64,10 @@ function sign(v) {
         <span class="slider"></span> </label
       ><span class="round-result">{{ won }}</span>
     </div>
-    <div class="section breakdown">
-      <p class="up">{{ sign(bull.toFixed(4)) }}</p>
-      <p class="down">{{ sign(bear.toFixed(4)) }}</p>
-      <p>{{ sign(totalFees.toFixed(4)) }}</p>
+    <div class="section breakdown small">
+      <p class="up">{{ sign(bull.toFixed(4)) }} BNB</p>
+      <p class="down">{{ sign(bear.toFixed(4)) }} BNB</p>
+      <p>{{ sign(totalFees.toFixed(4)) }} BNB</p>
     </div>
     <div class="section result" :class="result > 0 ? 'up' : 'down'">
       <h3>{{ result.toFixed(4) }} BNB</h3>
