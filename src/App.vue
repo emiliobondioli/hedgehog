@@ -8,7 +8,7 @@ import Hedge from "./components/Hedge.vue";
 const fetcher = new PredictionsFetcher();
 
 const rounds = ref([]);
-const fee = ref(0.005);
+const fee = ref(0.0005);
 
 function update() {
   fetcher.get().then((r) => {
