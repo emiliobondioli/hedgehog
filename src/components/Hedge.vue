@@ -69,7 +69,6 @@ const result = computed(() => {
           @input="update"
           placeholder="down"
           class="down"
-          step="0.05"
         />x
       </div>
     </div>
@@ -92,6 +91,7 @@ const result = computed(() => {
           @input="update"
           placeholder="down"
           class="down"
+          step="0.05"
         />
       </div>
     </div>
