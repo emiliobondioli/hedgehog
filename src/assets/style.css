@@ -1,0 +1,102 @@
+.round {
+  display: flex;
+  align-items: center;
+  align-items: stretch;
+}
+h4 {
+  min-width: 7rem;
+  margin: 0;
+}
+h3 {
+  margin: 0;
+}
+input {
+  max-width: 2.5rem;
+  border: 0;
+  background: 0;
+  border-bottom: 1px solid rgb(136, 136, 136);
+  text-align: center;
+  color: rgb(237, 75, 158);
+  font-weight: bold;
+}
+input.up {
+  color: rgb(49, 208, 170);
+}
+.field {
+  font-size: 0.75rem;
+  margin-right: 0.5rem;
+  padding: 0.25rem;
+}
+.section {
+  display: flex;
+  align-items: center;
+  margin-right: 0.5rem;
+  margin-bottom: 0.15rem;
+  background-color: rgb(55, 47, 71);
+  padding: 0.5rem;
+}
+.section.result.down {
+  background-color: rgb(237, 75, 158);
+}
+.section.result.up {
+  background-color: rgb(49, 208, 170);
+}
+.round-result {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  display: block;
+  min-width: 2.5rem;
+}
+/* The switch - the box around the slider */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 3rem;
+  height: 1.4rem;
+  margin-right: 0.5rem;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+  display: flex;
+  align-items: center;
+  padding: 0.15rem;
+}
+
+.slider:before {
+  content: "";
+  display: block;
+  height: 80%;
+  width: 26px;
+  background-color: white;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+
+.slider {
+  background-color: rgb(237, 75, 158);
+}
+
+input:checked + .slider {
+  background-color: rgb(49, 208, 170);
+}
+
+input:checked + .slider:before {
+  transform: translateX(50%);
+}
