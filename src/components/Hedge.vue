@@ -3,9 +3,10 @@ import { computed, reactive, ref, toRefs } from "vue";
 
 const props = defineProps({
   round: Object,
+  fee: [String, Number],
 });
 
-const { round } = toRefs(props);
+const { round, fee } = toRefs(props);
 
 const bet = reactive({
   up: 0.1,
@@ -15,11 +16,26 @@ const bet = reactive({
 const status = ref(round.value.position === "Bull");
 const won = computed(() => (status.value ? "up" : "down"));
 
-const result = computed(() => {
-  const loss = won.value === "up" ? "down" : "up";
-  const gross = bet[won.value] * round.value[won.value];
-  return gross - bet[loss];
+const bear = computed(() => {
+  if (status.value) return -bet.down;
+  else return bet.down * round.value.down - bet.down;
 });
+
+const bull = computed(() => {
+  if (!status.value) return -bet.up;
+  else return bet.up * round.value.up - bet.up;
+});
+
+const totalFees = computed(() => parseFloat(fee.value) * -2);
+
+const result = computed(() => {
+  return bear.value + bull.value + totalFees.value;
+});
+
+function sign(v) {
+  if (parseFloat(v) >= 0) return "+" + v;
+  return v;
+}
 </script>
 
 <template>
@@ -48,9 +64,13 @@ const result = computed(() => {
         <span class="slider"></span> </label
       ><span class="round-result">{{ won }}</span>
     </div>
-
+    <div class="section breakdown">
+      <p class="up">{{ sign(bull.toFixed(4)) }}</p>
+      <p class="down">{{ sign(bear.toFixed(4)) }}</p>
+      <p>{{ sign(totalFees.toFixed(4)) }}</p>
+    </div>
     <div class="section result" :class="result > 0 ? 'up' : 'down'">
-      <h3>{{ result.toFixed(3) }} BNB</h3>
+      <h3>{{ result.toFixed(4) }} BNB</h3>
     </div>
   </div>
 </template>
@@ -69,17 +89,14 @@ h3 {
   margin: 0;
   font-size: 1rem;
 }
-input {
-  max-width: 2.5rem;
-  border: 0;
-  background: 0;
-  border-bottom: 1px solid rgb(136, 136, 136);
-  text-align: center;
+p {
+  margin: 0;
+}
+.up {
+  color: rgb(49, 208, 170);
+}
+.down {
   color: rgb(237, 75, 158);
-  font-weight: bold;
-  &.up {
-    color: rgb(49, 208, 170);
-  }
 }
 .field {
   font-size: 0.75rem;
@@ -98,6 +115,7 @@ input {
     h3 {
       text-align: right;
       width: 100%;
+      color: rgb(244, 238, 255);
     }
   }
   &.result.down {
@@ -106,14 +124,20 @@ input {
   &.result.up {
     background-color: rgb(49, 208, 170);
   }
+  &.breakdown {
+    min-width: 6.5rem;
+    flex-direction: column;
+    align-items: flex-end;
+  }
 }
+
 .round-result {
   font-size: 0.75rem;
   text-transform: uppercase;
   display: block;
   min-width: 2.5rem;
 }
-/* The switch - the box around the slider */
+
 .switch {
   position: relative;
   display: inline-block;
@@ -127,7 +151,6 @@ input {
   }
 }
 
-/* The slider */
 .slider {
   position: absolute;
   cursor: pointer;
