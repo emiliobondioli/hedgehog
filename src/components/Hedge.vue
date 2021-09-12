@@ -1,66 +1,103 @@
 <script setup>
-import { computed, reactive, ref, toRefs } from "vue";
+import { useSimulation } from "../composables/use-simulation";
+import { sign } from "../utils";
+import { computed, toRefs, reactive, watch } from "vue";
+import { isEqual, cloneDeep } from "lodash-es";
 
 const props = defineProps({
   round: Object,
   fee: [String, Number],
 });
 
-const { round, fee } = toRefs(props);
+const emit = defineEmits(["update"]);
+const original = cloneDeep(props.round);
 
-const bet = reactive({
-  up: 0.1,
-  down: 0.1,
-});
+let dirty = [];
 
-const status = ref(round.value.position === "Bull");
-const won = computed(() => (status.value ? "up" : "down"));
+watch(
+  () => props.round,
+  (newRound) => {
+    const r = { ...newRound };
+    dirty.forEach((d) => {
+      delete r[d];
+    });
+    Object.keys(r).forEach((k) => (round[k] = r[k]));
+  }
+);
 
-const bear = computed(() => {
-  if (status.value) return -bet.down;
-  else return bet.down * round.value.down - bet.down;
-});
+const { fee } = toRefs(props);
+const round = reactive({ ...props.round });
 
-const bull = computed(() => {
-  if (!status.value) return -bet.up;
-  else return bet.up * round.value.up - bet.up;
-});
+function update() {
+  dirty = getChangedProperties(round, original);
+  emit("update", { ...round.value, dirty: !!dirty.length });
+}
 
+function getChangedProperties(updated, old) {
+  return Object.keys(updated).filter((k) => {
+    if (k === "dirty") return false;
+    if (typeof updated[k] === "object") {
+      return !isEqual(updated[k], old[k]);
+    }
+    return updated[k] !== old[k];
+  });
+}
+
+const { won, bear, bull, total } = useSimulation(round);
 const totalFees = computed(() => parseFloat(fee.value) * -3);
 
 const result = computed(() => {
-  return bear.value + bull.value + totalFees.value;
+  return total.value + totalFees.value;
 });
-
-function sign(v) {
-  if (parseFloat(v) >= 0) return "+" + v;
-  return v;
-}
 </script>
 
 <template>
-  <div class="round">
+  <div class="round" :class="{ current: !round.closeAt && !round.lockAt }">
     <div class="section">
       <h4>Round {{ round.id }}</h4>
       <div class="field">
-        <input v-model="round.up" placeholder="up" class="up" />x
+        <input
+          v-model.number="round.up"
+          @input="update"
+          placeholder="up"
+          class="up"
+        />x
       </div>
       <div class="field">
-        <input v-model="round.down" placeholder="down" class="down" />x
+        <input
+          v-model.number="round.down"
+          @input="update"
+          placeholder="down"
+          class="down"
+          step="0.05"
+        />x
       </div>
     </div>
     <div class="section">
       <h3>Bet</h3>
       <div class="field">
-        <input v-model="bet.up" placeholder="up" class="up" />
+        <input
+          type="number"
+          v-model.number="round.bet.up"
+          @input="update"
+          placeholder="up"
+          class="up"
+          step="0.05"
+        />
       </div>
       <div class="field">
-        <input v-model="bet.down" placeholder="down" class="down" />
+        <input
+          type="number"
+          v-model.number="round.bet.down"
+          @input="update"
+          placeholder="down"
+          class="down"
+        />
       </div>
     </div>
     <div class="section">
       <label class="switch">
-        <input type="checkbox" value="1" v-model="status" />
+        <input type="checkbox" value="1" @change="update" v-model.number="round.status" />
         <span class="slider"></span> </label
       ><span class="round-result">{{ won }}</span>
     </div>
@@ -80,6 +117,11 @@ function sign(v) {
   display: flex;
   align-items: center;
   align-items: stretch;
+  &.current {
+    .section {
+      background-color: rgb(71, 60, 90);
+    }
+  }
 }
 h4 {
   min-width: 7rem;
@@ -92,11 +134,8 @@ h3 {
 p {
   margin: 0;
 }
-.up {
-  color: rgb(49, 208, 170);
-}
-.down {
-  color: rgb(237, 75, 158);
+input {
+  max-width: 2.75rem;
 }
 .field {
   font-size: 0.75rem;
@@ -106,8 +145,8 @@ p {
 .section {
   display: flex;
   align-items: center;
-  margin-right: 0.5rem;
-  margin-bottom: 0.15rem;
+  margin-right: 0.1rem;
+  margin-bottom: 0.2rem;
   background-color: rgb(55, 47, 71);
   padding: 0.5rem;
   &.result {
